@@ -2354,6 +2354,16 @@ class Process:
         return len(os.listdir("%s/%s/fd" % (self._procfs_path, self.pid)))
 
     @wrap_exceptions
+    def list_fds(self):
+        fds = []
+        for fd_num in os.listdir("%s/%s/fd" % (self._procfs_path, self.pid)):
+            try:
+                fds.append((int(fd_num), os.readlink("%s/%s/fd/%s" % (self._procfs_path, self.pid, fd_num))))
+            except FileNotFoundError:
+                pass
+        return fds
+
+    @wrap_exceptions
     def ppid(self):
         return int(self._parse_stat_file()['ppid'])
 
